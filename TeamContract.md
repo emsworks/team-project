@@ -18,7 +18,7 @@ This contract sets out shared expectations and commitments for how our team will
 
 ### Communication
 
-* Our team project we will be communicating with each other using Discord as our primary place where we will discuss our work and share files, and Instagram instant messaging to quickly talk to each other outside of class. 
+* Throughout team project we will be communicating with each other using Discord as our primary place where we will discuss our work and share files, and Instagram instant messaging to quickly talk to each other outside of class. 
 
 * Each teammate in our group agrees to respond to tagged (e.g. "@groupMember") messages within one day, and non-tagged messages within 2 days. 
 
