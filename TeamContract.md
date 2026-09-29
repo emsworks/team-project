@@ -18,44 +18,38 @@ This contract sets out shared expectations and commitments for how our team will
 
 ### Communication
 
-* Which platform will you use for communication outside of class, when required for work on your course project? (Examples: Text message, Discord, WeChat, etc.)
+* Our team project we will be communicating with each other using Discord as our primary place where we will discuss our work and share files, and Instagram instant messaging to quickly talk to each other outside of class. 
 
-* Each teammate agrees to respond to messages in at most how long? 1 day? 2 days? Some other amount of time? 
+* Each teammate in our group agrees to respond to tagged (e.g. "@groupMember") messages within one day, and non-tagged messages within 2 days. 
 
-* What things should a teammate notify you about? (Examples: if they think they won't be able to meet a deadline, if they have to miss lecture, etc.)
+* Teammates should notify other teammates about proposed changes/pull requests, ideas for new features and implementations of features, whether or not they can meet a deadline that has been delegated to them, and whether they will miss a lab or lecture due to illness or other issues. 
 
-* Respectful and inclusive behaviour are necessary for smooth and productive communication. What are some respectful and inclusive behaviours you expect when communicating with each other during lectures, labs, or outside of class? (Examples: Actively listening to each team members ideas, giving everyone a chance to meaningfully contribute, etc.)
-
----
-
-### [Other Categories of norms and expectations go here]
-
-* Based on your previous teamwork experiences, what other behaviours do you agree upon as a team?
-    - some examples of possible additional team norms and expectations are included in the sample team contract in case your team needs some help getting ideas for what else you want to include.
+* All teammates should provide respectful, constructive feedback and/or criticism to other group members, and allow each group member to share ideas and contribute. The team should encourage the best ideas and work to be created and implemented in the final implementation of our project.
 
 ---
 
 ## Decision Making
 
-* How will decisions about your team project be made? (Examples: By majority vote, by unanimous vote, etc.)
+* Major decisions for the project will be made by taking a vote. If the vote is split (our group is four members), TA advice and alternatives to the proposed idea, as well as the participation of the member who is proposing the change will be factored into the groups decision to which way the vote will be resolved. 
 
 ---
 ## Conflict resolution
 
-* How will your team resolve conflicts? (Example: by listening to each other's side of the issue and attempting to reach a compromise. By consulting a TA or instructor as a team, if a resolution has not yet been reached.)
+* Our team will resolve conflicts by attempting to bridge opposing ideas and viewpoints in a compromise, and by using votes within the group with TA suggestions being used as a last resort. Our team will be proactive and thorough in brainstorming and designing our ideas before code is written in order to minimize disagreements or conflicts when actually writing/implementing our ideas.
 
 ---
 
 ## Accountability
 
-* Reliability and accountability are also important aspects of teamwork. What are the responsibilities of each team member? (Example: completing their share of the work in a timely manner, seeking assistance from teammates/TAs/instructors when required, etc.)
-
----
-
+* The primary responsibilities of each team member include consistent, active participation, contribution, and feedback during all stages of the project, completing this work all in a neat and timely manner that adheres to course deadlines and objectives. 
+* Team members will learn the course concepts and additional knowledge to fulfill their designated portion of the team project.
 ---
 
 By signing below, we acknowledge that we have read, discussed, and agreed to these terms. We understand that this contract is binding for the duration of the course and may be revised with the agreement of all team members.
 
 Team Member Signatures:
 
-(type names here)
+**Ethan Seet**
+**Minsung Kim**
+**Liam Evans**
+**Arish Zobeyer**
