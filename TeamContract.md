@@ -49,7 +49,7 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 
 Team Member Signatures:
 
-**Ethan Seet**
-**Minsung Kim**
-**Liam Evans**
+**Ethan Seet,**
+**Minsung Kim,**
+**Liam Evans,**
 **Arish Zobeyer**
