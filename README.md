@@ -1,16 +1,15 @@
 # Project Name
 ## Team Information
 ### Team Members
-- Name
-- Name
-- Name
-- Name
-- Name
-- Name
+- Minsung Kim
+- Arish Zobeyer
+- Ethan Seet
+- Liam Evans
 ---
 ## Project Description
 ### Domain
 [Project description]
+This application is a desktop application where you can budget time. The main page the application would be a dashboard with a metric (pie graph / bar graph) of the time spent for every activity you log. At the menu bar on the right, here is a Punch In & Punch Out button, as well as the activity name. 
 ---
 ## User Stories
 ### User Story 1
