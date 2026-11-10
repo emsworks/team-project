@@ -7,9 +7,9 @@
 - Liam Evans
 ---
 ## Project Description
-### Domain
+### Domain "Productivity"
 [Project description]
-This application is a desktop application where you can budget time. The main page the application would be a dashboard with a metric (pie graph / bar graph) of the time spent for every activity you log. At the menu bar on the right, here is a Punch In & Punch Out button, as well as the activity name. 
+ - This application is a desktop application where you can budget time. The main page the application would be a dashboard with a metric (pie graph / bar graph) of the time spent for every activity you log. At the menu bar on the right, here is a Punch In & Punch Out button, as well as the activity name. 
 ---
 ## User Stories
 ### User Story 1
