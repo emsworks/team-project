@@ -1,72 +1,44 @@
 package use_case.signup;
 
 import entity.User;
+import entity.UserFactory;
 
-/*
- * SignupInteractor
- * -----------------
- * Contains the business logic for the Sign Up use case.
- * It validates the user's input, checks that the username is available,
- * creates the user entity, and persists it through the data access interface.
- *
- * On success it notifies the presenter via the output boundary.
- * On failure it returns a failure message so the presenter can display it.
- *
- * Main flow:
- *  1. Validate that username and password are non-empty.
- *  2. Validate that the two password fields match.
- *  3. Check that the username is not already taken.
- *  4. Create and save the user.
- *
- * Alternative flows:
- *  - Empty fields → failure message
- *  - Passwords don't match → failure message
- *  - Username already taken → failure message
+/**
+ * Creates a new account if the username is free and the passwords match.
  */
 public class SignupInteractor implements SignupInputBoundary {
+    private final SignupUserDataAccessInterface userDataAccess;
+    private final SignupOutputBoundary presenter;
+    private final UserFactory userFactory;
 
-    private final SignupUserDataAccessInterface userDataAccessInterface;
-    private final SignupOutputBoundary outputBoundary;
-
-    /**
-     * Creates the interactor with its dependencies injected.
-     *
-     * @param userDataAccessInterface the storage interface for users
-     * @param outputBoundary          the presenter that receives the result
-     */
-    public SignupInteractor(
-            SignupUserDataAccessInterface userDataAccessInterface,
-            SignupOutputBoundary outputBoundary) {
-        this.userDataAccessInterface = userDataAccessInterface;
-        this.outputBoundary = outputBoundary;
+    public SignupInteractor(SignupUserDataAccessInterface userDataAccess,
+                            SignupOutputBoundary presenter,
+                            UserFactory userFactory) {
+        this.userDataAccess = userDataAccess;
+        this.presenter = presenter;
+        this.userFactory = userFactory;
     }
 
     @Override
-    public void execute(SignupRequestData request) {
-        // Validate non-empty fields.
-        if (request.getUsername() == null || request.getUsername().isBlank()
-                || request.getPassword() == null || request.getPassword().isBlank()) {
-            outputBoundary.preparationFailure("Username and password can't be empty.");
-            return;
+    public void execute(SignupInputData input) {
+        String username = input.getUsername();
+        String password = input.getPassword();
+
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            presenter.prepareFailView("Username and password can't be empty.");
+        } else if (userDataAccess.existsByName(username)) {
+            presenter.prepareFailView("User already exists.");
+        } else if (!password.equals(input.getRepeatPassword())) {
+            presenter.prepareFailView("Passwords don't match.");
+        } else {
+            User user = userFactory.create(username, password);
+            userDataAccess.save(user);
+            presenter.prepareSuccessView(new SignupOutputData(user.getUsername()));
         }
+    }
 
-        // Validate password match.
-        if (!request.getPassword().equals(request.getPasswordConfirmation())) {
-            outputBoundary.preparationFailure("Passwords don't match.");
-            return;
-        }
-
-        // Check for duplicate username.
-        if (userDataAccessInterface.exists(request.getUsername())) {
-            outputBoundary.preparationFailure("User already exists.");
-            return;
-        }
-
-        // Create and save the user.
-        User user = new User(request.getUsername(), request.getPassword());
-        userDataAccessInterface.save(user);
-
-        // Success — notify presenter.
-        outputBoundary.preparationSuccess(new SignupUserData(request.getUsername()));
+    @Override
+    public void switchToLoginView() {
+        presenter.switchToLoginView();
     }
 }
