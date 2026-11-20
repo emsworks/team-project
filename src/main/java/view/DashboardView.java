@@ -2,6 +2,7 @@ package view;
 
 import entity.Activity;
 import entity.TimeEntry;
+import interface_adapter.CheckTimeLimitController;
 import interface_adapter.DashboardState;
 import interface_adapter.DashboardViewModel;
 import use_case.dao_interfaces.ActivityDataAccessInterface;
@@ -50,6 +51,7 @@ public class DashboardView extends JPanel {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final DashboardViewModel viewModel;
+    private final CheckTimeLimitController checkTimeLimitController;
     private final ActivityDataAccessInterface dao;
     private final String username;
     private final Runnable onLogout;
@@ -74,9 +76,11 @@ public class DashboardView extends JPanel {
     private final JTextField limitField = new JTextField("60", 4);
     private final Set<String> alreadyWarned = new HashSet<>();
 
-    public DashboardView(DashboardViewModel viewModel, ActivityDataAccessInterface dao, String username,
+    public DashboardView(DashboardViewModel viewModel, CheckTimeLimitController checkTimeLimitController,
+                         ActivityDataAccessInterface dao, String username,
                          Runnable onLogout, Runnable onDeleteAccount) {
         this.viewModel = viewModel;
+        this.checkTimeLimitController = checkTimeLimitController;
         // redraw whenever the view model's state changes
         viewModel.addPropertyChangeListener(evt -> render(viewModel.getState()));
         this.dao = dao;
@@ -227,7 +231,7 @@ public class DashboardView extends JPanel {
             }
             a.get().setTimeBudget(Duration.ofMinutes(minutes));
             dao.save(username, a.get());
-            alreadyWarned.remove(a.get().getId());
+            alreadyWarned.remove(a.get().getName());
             JOptionPane.showMessageDialog(this, "Limit for " + a.get().getName() + " set to " + minutes + " min.");
         } catch (NumberFormatException ex) {
             error("Enter the limit as a whole number of minutes.");
@@ -290,11 +294,9 @@ public class DashboardView extends JPanel {
     // ---------- refresh ----------
 
     private void tick() {
+        // Check Time Limit use case: the presenter puts a reminder in the state if one is over
         for (Activity a : dao.getActivities(username)) {
-            if (a.isOverBudget() && alreadyWarned.add(a.getId())) {
-                JOptionPane.showMessageDialog(this, "You've gone over your limit for \"" + a.getName() + "\"!",
-                        "Time limit reminder", JOptionPane.WARNING_MESSAGE);
-            }
+            checkTimeLimitController.execute(username, a.getId());
         }
         // keeps the running clock ticking
         if (findRunning().isPresent()) {
@@ -391,6 +393,21 @@ public class DashboardView extends JPanel {
             activityBox.addItem(name);
         }
         activityBox.getEditor().setItem(typed);
+
+        // messages from presenters: show each once, then clear it from the state
+        String error = s.getErrorMessage();
+        if (error != null) {
+            s.setErrorMessage(null);
+            error(error);
+        }
+        String reminder = s.getReminderMessage();
+        if (reminder != null) {
+            s.setReminderMessage(null);
+            if (alreadyWarned.add(s.getReminderActivityName())) {
+                JOptionPane.showMessageDialog(this, reminder, "Time limit reminder",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        }
     }
 
     // ---------- helpers ----------

@@ -28,6 +28,10 @@ public class DashboardState {
     // message the view should show in a dialog, or null
     private String errorMessage;
 
+    // time-limit reminder the view should show (and which activity it is for), or null
+    private String reminderMessage;
+    private String reminderActivityName;
+
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
@@ -48,4 +52,10 @@ public class DashboardState {
 
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public String getReminderMessage() { return reminderMessage; }
+    public void setReminderMessage(String reminderMessage) { this.reminderMessage = reminderMessage; }
+
+    public String getReminderActivityName() { return reminderActivityName; }
+    public void setReminderActivityName(String name) { this.reminderActivityName = name; }
 }

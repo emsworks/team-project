@@ -2,8 +2,12 @@ package app;
 
 import entity.Activity;
 import entity.TimeEntry;
-import interface_adapter.ViewManagerModel;
+import interface_adapter.CheckTimeLimitController;
+import interface_adapter.CheckTimeLimitPresenter;
 import interface_adapter.DashboardViewModel;
+import interface_adapter.ViewManagerModel;
+import use_case.check_time_limit.CheckTimeLimitDataAccessInterface;
+import use_case.check_time_limit.CheckTimeLimitInteractor;
 import view.DashboardView;
 import view.ViewManager;
 import use_case.dao_interfaces.ActivityDataAccessInterface;
@@ -29,7 +33,7 @@ import java.util.Optional;
 public class Main {
 
     /** Minimal in-memory implementation of the shared activity DAO. */
-    static class InMemoryActivityDAO implements ActivityDataAccessInterface {
+    static class InMemoryActivityDAO implements ActivityDataAccessInterface, CheckTimeLimitDataAccessInterface {
         private final Map<String, Map<String, Activity>> data = new HashMap<>();
 
         private Map<String, Activity> of(String user) {
@@ -38,6 +42,11 @@ public class Main {
 
         public Optional<Activity> getActivity(String u, String id) {
             return Optional.ofNullable(of(u).get(id));
+        }
+
+        // used by the Check Time Limit use case
+        public Optional<Activity> retrieve(String u, String id) {
+            return getActivity(u, id);
         }
 
         public List<Activity> getActivities(String u) {
@@ -89,7 +98,9 @@ public class Main {
 
             // add each screen under its view name (login/signup go here too later)
             DashboardViewModel dashboardViewModel = new DashboardViewModel();
-            views.add(new DashboardView(dashboardViewModel, dao, user, stub, stub),
+            CheckTimeLimitController checkTimeLimitController = new CheckTimeLimitController(
+                    new CheckTimeLimitInteractor(dao, new CheckTimeLimitPresenter(dashboardViewModel)));
+            views.add(new DashboardView(dashboardViewModel, checkTimeLimitController, dao, user, stub, stub),
                     dashboardViewModel.getViewName());
 
             frame.setContentPane(views);
