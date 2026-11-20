@@ -2,12 +2,17 @@ package app;
 
 import entity.Activity;
 import entity.TimeEntry;
-import use_case.dao_interfaces.ActivityDataAccessInterface;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.DashboardViewModel;
 import view.DashboardView;
+import view.ViewManager;
+import use_case.dao_interfaces.ActivityDataAccessInterface;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import java.awt.CardLayout;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -75,7 +80,23 @@ public class Main {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             Runnable stub = () -> JOptionPane.showMessageDialog(frame,
                     "Not wired up yet - this should go back to the login screen.");
-            frame.setContentPane(new DashboardView(dao, user, stub, stub));
+
+            // screen switching: ViewManager flips the CardLayout when the ViewManagerModel changes
+            CardLayout cardLayout = new CardLayout();
+            JPanel views = new JPanel(cardLayout);
+            ViewManagerModel viewManagerModel = new ViewManagerModel();
+            new ViewManager(views, cardLayout, viewManagerModel);
+
+            // add each screen under its view name (login/signup go here too later)
+            DashboardViewModel dashboardViewModel = new DashboardViewModel();
+            views.add(new DashboardView(dashboardViewModel, dao, user, stub, stub),
+                    dashboardViewModel.getViewName());
+
+            frame.setContentPane(views);
+
+            // show the first screen
+            viewManagerModel.setState(dashboardViewModel.getViewName());
+            viewManagerModel.firePropertyChanged();
             frame.setSize(900, 620);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);

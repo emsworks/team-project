@@ -2,6 +2,8 @@ package view;
 
 import entity.Activity;
 import entity.TimeEntry;
+import interface_adapter.DashboardState;
+import interface_adapter.DashboardViewModel;
 import use_case.dao_interfaces.ActivityDataAccessInterface;
 
 import javax.swing.BorderFactory;
@@ -47,6 +49,7 @@ import java.util.Set;
 public class DashboardView extends JPanel {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    private final DashboardViewModel viewModel;
     private final ActivityDataAccessInterface dao;
     private final String username;
     private final Runnable onLogout;
@@ -71,8 +74,11 @@ public class DashboardView extends JPanel {
     private final JTextField limitField = new JTextField("60", 4);
     private final Set<String> alreadyWarned = new HashSet<>();
 
-    public DashboardView(ActivityDataAccessInterface dao, String username,
+    public DashboardView(DashboardViewModel viewModel, ActivityDataAccessInterface dao, String username,
                          Runnable onLogout, Runnable onDeleteAccount) {
+        this.viewModel = viewModel;
+        // redraw whenever the view model's state changes
+        viewModel.addPropertyChangeListener(evt -> render(viewModel.getState()));
         this.dao = dao;
         this.username = username;
         this.onLogout = onLogout;
@@ -284,16 +290,14 @@ public class DashboardView extends JPanel {
     // ---------- refresh ----------
 
     private void tick() {
-        Optional<Activity> running = findRunning();
-        statusLabel.setText(running.map(a -> "Running: " + a.getName() + "  "
-                + ChartPanel.format(a.getRunningEntry().get().getDuration().getSeconds())).orElse("Not punched in"));
         for (Activity a : dao.getActivities(username)) {
             if (a.isOverBudget() && alreadyWarned.add(a.getId())) {
                 JOptionPane.showMessageDialog(this, "You've gone over your limit for \"" + a.getName() + "\"!",
                         "Time limit reminder", JOptionPane.WARNING_MESSAGE);
             }
         }
-        if (running.isPresent()) {
+        // keeps the running clock ticking
+        if (findRunning().isPresent()) {
             refresh();
         }
     }
@@ -307,46 +311,75 @@ public class DashboardView extends JPanel {
         }
     }
 
+    /** Builds a fresh DashboardState from storage and hands it to the view model. */
     private void refresh() {
         LocalDateTime from = periodStart();
-        Map<String, Long> totals = new LinkedHashMap<>();
-        List<Object[]> rows = new ArrayList<>();
         rowActivity.clear();
         rowEntry.clear();
 
-        // (activity, entry) pairs in this period, newest first
         List<Activity> activities = dao.getActivities(username);
         List<Object[]> pairs = new ArrayList<>();
-        for (Activity a : activities) {
-            for (TimeEntry en : a.getTimeEntries()) {
+        for (Activity act : activities) {
+            for (TimeEntry en : act.getTimeEntries()) {
                 if (!en.getStart().isBefore(from)) {
-                    pairs.add(new Object[]{a, en});
+                    pairs.add(new Object[]{act, en});
                 }
             }
         }
         pairs.sort(Comparator.comparing((Object[] p) -> ((TimeEntry) p[1]).getStart()).reversed());
 
         Map<String, Long> unsorted = new LinkedHashMap<>();
+        List<String[]> rows = new ArrayList<>();
         for (Object[] p : pairs) {
-            Activity a = (Activity) p[0];
+            Activity act = (Activity) p[0];
             TimeEntry en = (TimeEntry) p[1];
-            unsorted.merge(a.getName(), en.getDuration().getSeconds(), Long::sum);
-            rowActivity.add(a);
+            unsorted.merge(act.getName(), en.getDuration().getSeconds(), Long::sum);
+            rowActivity.add(act);
             rowEntry.add(en);
-            rows.add(new Object[]{a.getName(), en.getStart().format(FMT),
+            rows.add(new String[]{act.getName(), en.getStart().format(FMT),
                     en.isRunning() ? "(running)" : en.getEnd().format(FMT),
                     ChartPanel.format(en.getDuration().getSeconds())});
         }
         // most-used activities first
+        Map<String, Long> totals = new LinkedHashMap<>();
         unsorted.entrySet().stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .forEach(e -> totals.put(e.getKey(), e.getValue()));
 
-        chart.setData(totals, chartBox.getSelectedIndex() == 0);
+        List<String> names = new ArrayList<>();
+        for (Activity act : activities) {
+            names.add(act.getName());
+        }
+
+        Optional<Activity> running = findRunning();
+        String runningText = "Not punched in";
+        if (running.isPresent()) {
+            Activity act = running.get();
+            runningText = "Running: " + act.getName() + "  "
+                    + ChartPanel.format(act.getRunningEntry().get().getDuration().getSeconds());
+        }
+
+        DashboardState state = new DashboardState();
+        state.setUsername(username);
+        state.setPieChart(chartBox.getSelectedIndex() == 0);
+        state.setChartTotals(totals);
+        state.setEntryRows(rows);
+        state.setActivityNames(names);
+        state.setRunningText(runningText);
+        viewModel.setState(state);
+        viewModel.firePropertyChanged();
+    }
+
+    /** Draws the screen from the state. This is the only place the widgets get updated. */
+    private void render(DashboardState s) {
+        chart.setData(s.getChartTotals(), s.isPieChart());
+        statusLabel.setText(s.getRunningText());
 
         int selected = table.getSelectedRow();
         tableModel.setRowCount(0);
-        rows.forEach(tableModel::addRow);
+        for (String[] row : s.getEntryRows()) {
+            tableModel.addRow(row);
+        }
         if (selected >= 0 && selected < tableModel.getRowCount()) {
             table.setRowSelectionInterval(selected, selected);
         }
@@ -354,7 +387,9 @@ public class DashboardView extends JPanel {
         // keep the activity dropdown in sync without losing what the user typed
         Object typed = activityBox.getEditor().getItem();
         activityBox.removeAllItems();
-        activities.forEach(a -> activityBox.addItem(a.getName()));
+        for (String name : s.getActivityNames()) {
+            activityBox.addItem(name);
+        }
         activityBox.getEditor().setItem(typed);
     }
 
