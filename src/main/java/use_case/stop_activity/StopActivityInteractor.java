@@ -1,7 +1,6 @@
 package use_case.stop_activity;
 
 import entity.Activity;
-import java.time.LocalDateTime;
 
 /*
  * StopActivityInteractor
@@ -63,7 +62,7 @@ public class StopActivityInteractor implements StopActivityInputBoundary {
             outputBoundary.failure("No running entry to stop.");
             return;
         }
-        activity.getRunningEntry().get().stop(LocalDateTime.now());
+        activity.getRunningEntry().get().stop(request.getCurrentTime());
 
         // Save the updated activity.
         dataAccessInterface.save(request.getUsername(), activity);

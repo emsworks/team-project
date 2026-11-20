@@ -2,7 +2,6 @@ package use_case.start_activity;
 
 import entity.Activity;
 import entity.TimeEntry;
-import java.time.LocalDateTime;
 
 /*
  * StartActivityInteractor
@@ -67,7 +66,7 @@ public class StartActivityInteractor implements StartActivityInputBoundary {
         }
 
         // Create a new running time entry.
-        TimeEntry entry = new TimeEntry(LocalDateTime.now());
+        TimeEntry entry = new TimeEntry(request.getCurrentTime());
         activity.addTimeEntry(entry);
 
         // Save the updated activity.
