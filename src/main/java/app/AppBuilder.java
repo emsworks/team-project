@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 import java.awt.CardLayout;
 
+import use_case.dao_interfaces.ActivityDataAccessInterface;
+
 /**
  * Wires the app together (Builder pattern).
  * To add your feature: write addXView() and addXUseCase() methods, then call them in Main.
@@ -35,6 +37,7 @@ public class AppBuilder {
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final UserDataAccessObject userDataAccessObject;
+    private final ActivityDataAccessInterface activityDataAccess;
     private final UserFactory userFactory = new UserFactory();
 
     private SignupViewModel signupViewModel;
@@ -44,8 +47,10 @@ public class AppBuilder {
     private LoginView loginView;
     private LoggedInView loggedInView;
 
-    public AppBuilder(UserDataAccessObject userDataAccessObject) {
+    public AppBuilder(UserDataAccessObject userDataAccessObject,
+                    ActivityDataAccessInterface activityDataAccess) {
         this.userDataAccessObject = userDataAccessObject;
+        this.activityDataAccess = activityDataAccess;
         cardPanel.setLayout(cardLayout);
         new ViewManager(cardPanel, cardLayout, viewManagerModel);
     }
@@ -66,7 +71,7 @@ public class AppBuilder {
 
     public AppBuilder addLoggedInView() {
         loggedInViewModel = new LoggedInViewModel();
-        loggedInView = new LoggedInView(loggedInViewModel);
+        loggedInView = new LoggedInView(loggedInViewModel, activityDataAccess);
         cardPanel.add(loggedInView, loggedInView.getViewName());
         return this;
     }

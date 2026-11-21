@@ -1,47 +1,41 @@
 package view;
 
-import interface_adapter.logged_in.LoggedInState;
+import interface_adapter.DashboardViewModel;
 import interface_adapter.logged_in.LoggedInViewModel;
 import interface_adapter.logout.LogoutController;
+import use_case.dao_interfaces.ActivityDataAccessInterface;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-/**
- * Screen shown after login.
- * PLACEHOLDER: the dashboard owner replaces the CENTER area with the real dashboard.
- * The top bar (username + Log out) stays.
+/*
+ * LoggedInView
+ * ------------
+ * The screen shown after login. It holds the DashboardView.
+ * The dashboard needs the username at construction, so it is built each time
+ * a user logs in and torn down when they log out.
  */
 public class LoggedInView extends JPanel implements PropertyChangeListener {
     private final LoggedInViewModel loggedInViewModel;
+    private final ActivityDataAccessInterface activityDataAccess;
     private LogoutController logoutController;
 
-    private final JLabel usernameLabel = new JLabel();
+    // The current dashboard; null when nobody is logged in.
+    private DashboardView dashboard;
 
-    public LoggedInView(LoggedInViewModel loggedInViewModel) {
+    // The user the current dashboard was built for ("" = nobody logged in).
+    private String currentUsername = "";
+
+    public LoggedInView(LoggedInViewModel loggedInViewModel,
+                        ActivityDataAccessInterface activityDataAccess) {
         this.loggedInViewModel = loggedInViewModel;
+        this.activityDataAccess = activityDataAccess;
         loggedInViewModel.addPropertyChangeListener(this);
-
         setLayout(new BorderLayout());
-
-        JButton logoutButton = new JButton("Log out");
-        logoutButton.addActionListener(e -> logoutController.execute());
-
-        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        topBar.add(usernameLabel);
-        topBar.add(logoutButton);
-
-        JLabel placeholder = new JLabel("Dashboard goes here", JLabel.CENTER);
-        placeholder.setBorder(BorderFactory.createEmptyBorder(80, 80, 80, 80));
-
-        add(topBar, BorderLayout.NORTH);
-        add(placeholder, BorderLayout.CENTER);
     }
 
     public String getViewName() {
@@ -52,9 +46,56 @@ public class LoggedInView extends JPanel implements PropertyChangeListener {
         this.logoutController = logoutController;
     }
 
+    /** Runs when login/logout updates the logged-in state. */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        LoggedInState state = (LoggedInState) evt.getNewValue();
-        usernameLabel.setText("Logged in as: " + state.getUsername());
+        String username = loggedInViewModel.getState().getUsername();
+        if (username == null) {
+            username = "";
+        }
+
+        // A failed logout (or a repeated event) fires this with the same username; ignore it.
+        if (username.equals(currentUsername)) {
+            return;
+        }
+        currentUsername = username;
+
+        removeDashboard();
+        if (!username.isBlank()) {
+            showDashboard(username);
+        }
+    }
+
+    /** Builds a fresh dashboard for this user and puts it on screen. */
+    private void showDashboard(String username) {
+        dashboard = new DashboardView(
+                new DashboardViewModel(),
+                activityDataAccess,
+                username,
+                () -> logoutController.execute(),
+                // TODO: replace with a real Delete Account use case.
+                // For now this only logs out; the user's record is NOT deleted.
+                () -> logoutController.execute());
+        add(dashboard, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+
+        // The window was sized for the login screen; resize it to fit the dashboard.
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window != null) {
+            window.pack();
+            window.setLocationRelativeTo(null);
+        }
+    }
+
+    /** Stops the old dashboard's clock and removes it from the screen. */
+    private void removeDashboard() {
+        if (dashboard != null) {
+            dashboard.stop();
+            remove(dashboard);
+            dashboard = null;
+            revalidate();
+            repaint();
+        }
     }
 }

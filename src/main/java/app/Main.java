@@ -1,22 +1,25 @@
 package app;
 
 import data_access.FileUserDataAccessObject;
+import data_access.InMemoryActivityDataAccessObject;
 import data_access.UserDataAccessObject;
 import entity.UserFactory;
+import use_case.dao_interfaces.ActivityDataAccessInterface;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 /**
- * Entry point. Swap storage by changing the one line below
+ * Entry point. Swap storage by changing the lines below
  * (e.g. new InMemoryUserDataAccessObject() for a throwaway session).
  */
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             UserDataAccessObject userDataAccess = new FileUserDataAccessObject("users.json", new UserFactory());
+            ActivityDataAccessInterface activityDataAccess = new InMemoryActivityDataAccessObject();
 
-            JFrame application = new AppBuilder(userDataAccess)
+            JFrame application = new AppBuilder(userDataAccess, activityDataAccess)
                     .addLoginView()
                     .addSignupView()
                     .addLoggedInView()

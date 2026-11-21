@@ -73,6 +73,8 @@ public class DashboardView extends JPanel {
     private final JLabel statusLabel = new JLabel("Not punched in");
     private final JTextField limitField = new JTextField("60", 4);
     private final Set<String> alreadyWarned = new HashSet<>();
+    private final Timer timer = new Timer(1000, e -> tick());
+
 
     public DashboardView(DashboardViewModel viewModel, ActivityDataAccessInterface dao, String username,
                          Runnable onLogout, Runnable onDeleteAccount) {
@@ -93,10 +95,13 @@ public class DashboardView extends JPanel {
         chartBox.addActionListener(e -> refresh());
 
         // Updates the running clock and checks the time limit once a second.
-        new Timer(1000, e -> tick()).start();
+        timer.start();        
         refresh();
     }
-
+    /** Stops the clock; called when the user logs out so it doesn't keep running. */
+    public void stop() {
+        timer.stop();
+    }
     // ---------- layout ----------
 
     private JPanel buildCenter() {
