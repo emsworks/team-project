@@ -4,14 +4,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Base class for every view model. Holds the current state of one screen and
- * tells listeners (the view) when it changes.
+ * Base class for all view models. Holds a state object and notifies
+ * listening views (via PropertyChangeSupport) when it changes.
  *
- * @param <T> the state class for that screen (e.g. DashboardState)
+ * @param <T> the type of state this view model holds
  */
 public class ViewModel<T> {
-    public static final String STATE_PROPERTY = "state";
-
     private final String viewName;
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private T state;
@@ -32,10 +30,14 @@ public class ViewModel<T> {
         this.state = state;
     }
 
-    /** Call after setState (usually from a presenter) so the view redraws. */
+    /** Tells listening views that the state changed. */
     public void firePropertyChanged() {
-        // old value is null so the event always fires, even if the state looks equal
-        support.firePropertyChange(STATE_PROPERTY, null, this.state);
+        support.firePropertyChange("state", null, state);
+    }
+
+    /** Fires a change event with a custom property name. */
+    public void firePropertyChanged(String propertyName) {
+        support.firePropertyChange(propertyName, null, state);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {

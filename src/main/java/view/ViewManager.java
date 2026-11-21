@@ -8,13 +8,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * Listens to the ViewManagerModel and shows the matching screen.
- * Every screen must be added to the card panel under its view name, e.g.
- * views.add(dashboardView, dashboardViewModel.getViewName());
+ * Switches which screen is showing whenever ViewManagerModel's state changes.
  */
 public class ViewManager implements PropertyChangeListener {
-    private final JPanel views;
     private final CardLayout cardLayout;
+    private final JPanel views;
 
     public ViewManager(JPanel views, CardLayout cardLayout, ViewManagerModel viewManagerModel) {
         this.views = views;
@@ -24,7 +22,7 @@ public class ViewManager implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(ViewManagerModel.STATE_PROPERTY)) {
+        if ("state".equals(evt.getPropertyName())) {
             String viewName = (String) evt.getNewValue();
             cardLayout.show(views, viewName);
         }
