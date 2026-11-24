@@ -82,7 +82,7 @@ The purpose of the app is to help people see accurately how they use their time.
 - **Alternative flow:** There are no entries in the period → an empty-state message.
 
 ### Use Case: Set / Check Time Limit
-**Lead:** TBD
+**Lead:** Ethan Seet
 - **Main flow:** The user sets a time limit on an activity. When the tracked time for that activity exceeds the limit, the system shows a reminder notification.
 - **Alternative flow:** The limit is ≤ 0 → error.
 
