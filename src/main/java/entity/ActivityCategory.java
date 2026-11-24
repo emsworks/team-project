@@ -65,4 +65,64 @@ public class ActivityCategory {
         }
         this.name = name.trim();
     }
+
+        // ---------- predefined list ----------
+
+    /** Returns the predefined categories (read-only), including OTHER. */
+    public static List<ActivityCategory> defaults() {
+        return DEFAULTS;
+    }
+
+    /**
+     * Turns a text label into a predefined category, ignoring case, surrounding
+     * quotes, and a trailing period. A blank or null label gives UNCATEGORIZED;
+     * any other unrecognized label gives OTHER.
+     */
+    public static ActivityCategory fromLabel(String label) {
+        if (label == null || label.isBlank()) {
+            return UNCATEGORIZED;
+        }
+        // Models sometimes wrap the answer in quotes or end it with a period.
+        String cleaned = label.trim().replaceAll("^[\"'`]+|[\"'`.]+$", "").trim();
+        for (ActivityCategory category : DEFAULTS) {
+            if (category.name.equalsIgnoreCase(cleaned)) {
+                return category;
+            }
+        }
+        return OTHER;
+    }
+
+    // ---------- getters ----------
+
+    /** Returns the category's name. */
+    public String getName() {
+        return name;
+    }
+
+    // ---------- equality (by name, ignoring case) ----------
+
+    /** Two categories are equal if their names match, ignoring case. */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ActivityCategory)) {
+            return false;
+        }
+        ActivityCategory other = (ActivityCategory) o;
+        return name.equalsIgnoreCase(other.name);
+    }
+
+    /** Hash code based on the lowercase name, consistent with equals. */
+    @Override
+    public int hashCode() {
+        return name.toLowerCase(Locale.ROOT).hashCode();
+    }
+
+    /** Returns the category name as its text form. */
+    @Override
+    public String toString() {
+        return name;
+    }
 }
