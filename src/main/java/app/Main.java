@@ -1,7 +1,7 @@
 package app;
 
+import data_access.FileActivityDataAccessObject;
 import data_access.FileUserDataAccessObject;
-import data_access.InMemoryActivityDataAccessObject;
 import data_access.UserDataAccessObject;
 import entity.UserFactory;
 import use_case.dao_interfaces.ActivityDataAccessInterface;
@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             UserDataAccessObject userDataAccess = new FileUserDataAccessObject("users.json", new UserFactory());
-            ActivityDataAccessInterface activityDataAccess = new InMemoryActivityDataAccessObject();
+            ActivityDataAccessInterface activityDataAccess = new FileActivityDataAccessObject("activities.json");
 
             JFrame application = new AppBuilder(userDataAccess, activityDataAccess)
                     .addLoginView()

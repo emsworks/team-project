@@ -1,7 +1,6 @@
 package data_access;
 
 import entity.Activity;
-import use_case.dao_interfaces.ActivityDataAccessInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,9 +14,9 @@ import java.util.Optional;
  * InMemoryActivityDataAccessObject
  * --------------------------------
  * Keeps each user's activities in memory (lost when the app closes).
- * A temporary stand-in until a file or database version exists.
+ * Used in tests; the app itself uses FileActivityDataAccessObject.
  */
-public class InMemoryActivityDataAccessObject implements ActivityDataAccessInterface {
+public class InMemoryActivityDataAccessObject implements ActivityDataAccessObject {
     // username -> (activity id -> activity), in insertion order.
     private final Map<String, Map<String, Activity>> byUser = new HashMap<>();
 
