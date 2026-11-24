@@ -45,6 +45,9 @@ public class Activity {
     // Optional budget; null means no budget has been set.
     private Duration timeBudget;
 
+    // Category this activity belongs to; UNCATEGORIZED until the categorizer assigns one.
+    private ActivityCategory category;
+
     // All sessions for this activity, keyed by entry id, in insertion order.
     private final Map<String, TimeEntry> timeEntries = new LinkedHashMap<>();
 
@@ -58,12 +61,18 @@ public class Activity {
         this(UUID.randomUUID().toString(), name, timeBudget);
     }
 
-    /** Rebuilds an activity with a known id (used when loading from storage). */
+    /** Rebuilds an activity with a known id and no category yet. */
     public Activity(String id, String name, Duration timeBudget) {
+        this(id, name, timeBudget, ActivityCategory.UNCATEGORIZED);
+    }
+
+    /** Rebuilds an activity with a known id and category (used when loading from storage). */
+    public Activity(String id, String name, Duration timeBudget, ActivityCategory category) {
         this.id = Objects.requireNonNull(id, "id cannot be null");
         // Setters are used so the same validation applies everywhere.
         setName(name);
         setTimeBudget(timeBudget);
+        setCategory(category);
     }
 
     // ---------- getters ----------
@@ -88,6 +97,11 @@ public class Activity {
         return Collections.unmodifiableList(new ArrayList<>(timeEntries.values()));
     }
 
+    /** Returns the activity's category (UNCATEGORIZED if none has been assigned). */
+    public ActivityCategory getCategory() {
+        return category;
+    }
+
     // ---------- setters (validated; used by Edit Activity) ----------
 
     /** Changes the name. Throws if null or blank. */
@@ -104,6 +118,11 @@ public class Activity {
             throw new IllegalArgumentException("Time budget must be positive");
         }
         this.timeBudget = timeBudget;
+    }
+
+    /** Changes the category. A null category falls back to UNCATEGORIZED. */
+    public void setCategory(ActivityCategory category) {
+        this.category = (category == null) ? ActivityCategory.UNCATEGORIZED : category;
     }
 
     // ---------- time entries ----------
