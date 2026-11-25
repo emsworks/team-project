@@ -19,7 +19,7 @@ The purpose of the app is to help people see accurately how they use their time.
 ---
 
 ## User Stories
-1. As a student, I want to see how much time I spend on gaming so that I can reallocate that time to studying.
+1. As a user, I want to see how I spent my time grouped into categories without checking one at a time
 2. As a user, I want to view, edit and delete previously added time entries so that I can correct mistakes.
 3. As a user, I want to see which activities I spend the most time on in a week or month.
 4. As a user, I want to be able to delete my account and its data.
